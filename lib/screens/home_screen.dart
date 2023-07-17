@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes/components/search_bar.dart';
+import 'package:notes/screens/note_screen.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'dart:math';
 import '../consts/colors.dart';
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
                     decoration: BoxDecoration(
-                        color: randColor,
+                        color: Color(noteColors[index]),
                         borderRadius: BorderRadius.circular(16)),
                     width: 200,
                     height: 200,
@@ -71,7 +72,9 @@ class _HomePageState extends State<HomePage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=>NoteScreen()));
+        },
         child: const Icon(
           Icons.add,
           color: scaffoldBackgroundColor,

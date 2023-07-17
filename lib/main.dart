@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:notes/consts/colors.dart';
+import 'package:notes/screens/splash_screen.dart';
 
 import 'screens/home_screen.dart';
 
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.blue,
         scaffoldBackgroundColor: scaffoldBackgroundColor,
       ),
-      home: HomePage(),
+      home: SplashScreen(),
     );
   }
 }
