@@ -4,7 +4,6 @@ import 'package:notes/screens/note_screen.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'dart:math';
 import '../consts/colors.dart';
-import '../consts/theme.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -73,7 +72,7 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(16),
         ),
         onPressed: () {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=>NoteScreen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (_)=>NoteScreen()));
         },
         child: const Icon(
           Icons.add,
