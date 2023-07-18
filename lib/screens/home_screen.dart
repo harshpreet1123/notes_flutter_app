@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10),
-                itemCount: noteColors.length,
+                itemCount: 7,
                 itemBuilder: (BuildContext context, int index) {
                   return Container(
                     decoration: BoxDecoration(
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(16),
         ),
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_)=>NoteScreen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (_)=>NoteScreen(randColor: randColor,)));
         },
         child: const Icon(
           Icons.add,

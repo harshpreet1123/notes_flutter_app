@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
 
-import '../consts/colors.dart';
-
-Widget customTextField(
-    double size,
-    FontWeight hintfontweight,
-    FontWeight textfontweight,
-    String hinttext,
-    Color color,
-    controller,
-    autofocus,
-    maxLines) {
+Widget customTextField({
+  required ValueChanged<String> onChanged,
+  required double size,
+  required FontWeight hintFontWeight,
+  required FontWeight textFontWeight,
+  required String hintText,
+  required Color color,
+  required TextEditingController controller,
+  required bool autofocus,
+  required int maxLines,
+}) {
   return TextField(
+    onChanged: onChanged,
     textCapitalization: TextCapitalization.sentences,
     maxLines: maxLines,
-    autofocus: true,
-    style: TextStyle(color: color, fontWeight: textfontweight, fontSize: size),
+    autofocus: autofocus,
+    controller: controller,
+    style: TextStyle(
+      color: color,
+      fontWeight: textFontWeight,
+      fontSize: size,
+    ),
     decoration: InputDecoration(
       border: InputBorder.none,
-      hintText: hinttext,
-      hintStyle:
-          TextStyle(color: color, fontWeight: hintfontweight, fontSize: size),
+      hintText: hintText,
+      hintStyle: TextStyle(
+        color: color,
+        fontWeight: hintFontWeight,
+        fontSize: size,
+      ),
     ),
   );
 }

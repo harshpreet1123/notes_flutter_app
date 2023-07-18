@@ -2,52 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notes/components/csutom_textfield.dart';
 import 'package:notes/db/notes_database.dart';
-import 'package:notes/screens/home_screen.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'package:path/path.dart';
 import '../consts/colors.dart';
 import '../models/note.dart';
 
 class NoteScreen extends StatefulWidget {
-  const NoteScreen({Key? key}) : super(key: key);
+  const NoteScreen({Key? key, required this.randColor}) : super(key: key);
+  final Color randColor;
 
   @override
   State<NoteScreen> createState() => _NoteScreenState();
 }
 
 class _NoteScreenState extends State<NoteScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(statusBarColor: widget.randColor));
+  }
+
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   String? title;
   String? description;
 
-  void updateTitle() {
-    setState(() {
-      title = titleController.text;
-    });
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    super.dispose();
   }
 
-  void updateDescription() {
-    setState(() {
-      description = descriptionController.text;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: primaryColor));
 
     final NotesDatabase _db = NotesDatabase.instance;
 
+    void updateTitle(String value) {
+      setState(() {
+        title = value;
+      });
+    }
+
+    void updateDescription(String value) {
+      setState(() {
+        description = value;
+      });
+    }
+
     void saveNote() async{
-      final String title = titleController.text;
-      final String description = descriptionController.text;
 
       final Note newNote = Note(
-        title: title,
-        description: description,
+        title: title!,
+        description: description!,
         createdTime: DateTime.now(),
       );
 
@@ -72,13 +82,11 @@ class _NoteScreenState extends State<NoteScreen> {
       appBar: AppBar(
         elevation: 0,
         toolbarHeight: 40,
-        backgroundColor: primaryColor,
+        backgroundColor: widget.randColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: scaffoldBackgroundColor),
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => HomePage()),
-            );
+            Navigator.pop(context);
           },
         ),
         actions: [
@@ -107,14 +115,15 @@ class _NoteScreenState extends State<NoteScreen> {
           children: [
             20.heightBox,
             customTextField(
-              26,
-              FontWeight.w100,
-              FontWeight.w300,
-              "Title",
-              primaryColorlight,
-              titleController,
-              true,
-              1,
+              onChanged: updateTitle,
+              size: 26,
+              hintFontWeight: FontWeight.w100,
+              textFontWeight: FontWeight.w300,
+              hintText: "Title",
+              color: primaryColorlight,
+              controller: titleController,
+              autofocus: true,
+              maxLines: 1,
             )
                 .box
                 .padding(EdgeInsets.symmetric(horizontal: 16))
@@ -126,14 +135,15 @@ class _NoteScreenState extends State<NoteScreen> {
             ),
             10.heightBox,
             customTextField(
-              18,
-              FontWeight.w100,
-              FontWeight.w200,
-              "Description",
-              primaryColorlight,
-              descriptionController,
-              false,
-              100,
+              onChanged: updateDescription,
+              size: 18,
+              hintFontWeight: FontWeight.w100,
+              textFontWeight: FontWeight.w200,
+              hintText: "Description",
+              color:primaryColorlight,
+              controller: descriptionController,
+              autofocus: false,
+              maxLines: 100,
             )
                 .box
                 .padding(EdgeInsets.symmetric(horizontal: 16))
