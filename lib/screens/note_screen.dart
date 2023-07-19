@@ -7,8 +7,10 @@ import '../consts/colors.dart';
 import '../models/note.dart';
 
 class NoteScreen extends StatefulWidget {
-  const NoteScreen({Key? key, required this.randColor}) : super(key: key);
+  const NoteScreen({Key? key, required this.randColor, required this.refreshHomeScreen, this.note}) : super(key: key);
   final Color randColor;
+  final VoidCallback refreshHomeScreen;
+  final Note? note;
 
   @override
   State<NoteScreen> createState() => _NoteScreenState();
@@ -21,6 +23,10 @@ class _NoteScreenState extends State<NoteScreen> {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: widget.randColor));
+    if(widget.note!=null){
+      titleController.text=widget.note!.title;
+      descriptionController.text=widget.note!.description;
+    }
   }
 
   TextEditingController titleController = TextEditingController();
@@ -39,7 +45,7 @@ class _NoteScreenState extends State<NoteScreen> {
   @override
   Widget build(BuildContext context) {
 
-    final NotesDatabase _db = NotesDatabase.instance;
+    final NotesDatabase db = NotesDatabase.instance;
 
     void updateTitle(String value) {
       setState(() {
@@ -55,21 +61,31 @@ class _NoteScreenState extends State<NoteScreen> {
 
     void saveNote() async{
 
-      final Note newNote = Note(
-        title: title!,
-        description: description!,
-        createdTime: DateTime.now(),
-      );
+      final String updatedTitle = titleController.text;
+      final String updatedDescription = descriptionController.text;
 
-      await _db.create(newNote);
+      if(widget.note!=null){
+        final updatedNote = widget.note!.copy(
+          title: updatedTitle,
+          description: updatedDescription
+        );
+        await db.update(updatedNote);
+      }else{
+        final Note newNote = Note(
+          title: title!,
+          description: description!,
+          createdTime: DateTime.now(),
+        );
+        await db.create(newNote);
+      }
+
+      widget.refreshHomeScreen();
       Navigator.pop(context);
-
-      print(_db);
-
+      // widget.method;
     }
 
     void showNotes() async{
-      final List<Note> notes = await _db.readAll();
+      final List<Note> notes = await db.readAll();
       notes.forEach((note) {
         print('id: ${note.id}');
         print('Title: ${note.title}');
@@ -88,6 +104,7 @@ class _NoteScreenState extends State<NoteScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
+
         ),
         actions: [
           ElevatedButton(
