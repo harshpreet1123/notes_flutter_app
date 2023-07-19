@@ -9,7 +9,8 @@ import '../consts/colors.dart';
 import '../models/note.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.notes});
+  final List<Note> notes;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,8 +18,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Color randColor = primaryColor;
-  late List<Note> notes;
+  List<Note> notes=[];
   bool isLoading = false;
+  bool isSelectedMode = false;
+  Set<int> selectedNotes = {};
 
   @override
   void initState() {
@@ -26,6 +29,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     generateRandomColor();
     refreshNotes();
+    notes = widget.notes;
   }
 
   void generateRandomColor() {
@@ -52,8 +56,38 @@ class _HomePageState extends State<HomePage> {
     refreshNotes();
   }
 
+  void cancelSelection() {
+    setState(() {
+      selectedNotes.clear();
+      isSelectedMode = false;
+    });
+  }
+
+  void deleteSelectedNodes() async{
+    final List<int> notesToDelete = selectedNotes.toList();
+    for(int id in notesToDelete){
+      await NotesDatabase.instance.delete(id);
+    }
+    setState(() {
+      selectedNotes.clear();
+      isSelectedMode = false;
+    });
+
+    refreshHomeScreen();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomePage oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    if(notes.length!=oldWidget.notes.length){
+      cancelSelection();
+    }
+  }
+
   @override
   void dispose() {
+    cancelSelection();
     super.dispose();
   }
 
@@ -61,6 +95,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        if(isSelectedMode){
+          cancelSelection();
+          return false;
+        }
         return true;
       },
       child: Scaffold(
@@ -72,51 +110,88 @@ class _HomePageState extends State<HomePage> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SearchBar(color: randColor),
+                isSelectedMode
+                    ? Container()
+                    : SearchBar(color: randColor),
                 10.heightBox,
                 isLoading == true
                     ? const CircularProgressIndicator(
                         color: primaryColor,
                       )
                     : StaggeredGrid.count(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        children: List.generate(notes.length, (index) {
-                          int colorIndex = index % noteColors.length;
-                          String title = notes[index].title;
-                          String description = notes[index].description;
-                          int maxL = description.length > 200
-                              ? 200
-                              : description.length;
-                          return Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                title.text.xl2.make(),
-                                5.heightBox,
-                                description.substring(0, maxL).text.make(),
-                              ],
-                            ),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      children: List.generate(notes.length, (index) {
+                        final note = notes[index];
+                        final isSelected = selectedNotes.contains(note.id);
+                        int colorIndex = index % noteColors.length;
+                        String title = note.title;
+                        String description = note.description;
+                        int maxL = description.length > 200
+                            ? 200
+                            : description.length;
+                        return GestureDetector(
+                          onTap: () {
+                            if (isSelectedMode) {
+                              setState(() {
+                                  if(isSelected){
+                                      selectedNotes.remove(note.id);
+                                      print(selectedNotes);
+                                  }else{
+                                    selectedNotes.add(note.id!);
+                                    print(selectedNotes);
+                                  }
+                                  if(selectedNotes.isEmpty){
+                                    cancelSelection();
+                                  }
+                              });
+                            } else {
+                              {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => NoteScreen(
+                                            randColor: randColor,
+                                            refreshHomeScreen:
+                                                refreshHomeScreen,
+                                            note: notes[index])));
+                              }
+                            }
+                          },
+                          onLongPress: () {
+                            setState(() {
+                              isSelectedMode = true;
+                              selectedNotes.add(note.id!);
+                              print(selectedNotes);
+                            });
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              title.text.xl
+                                  .fontWeight(FontWeight.w500)
+                                  .make(),
+                              5.heightBox,
+                              description
+                                  .substring(0, maxL)
+                                  .text
+                                  .make(),
+                            ],
                           )
                               .box
                               .roundedSM
-                              .color(Color(noteColors[colorIndex]))
-                              .p8
-                              .make()
-                              .onTap(() {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => NoteScreen(
-                                        randColor: randColor,
-                                        refreshHomeScreen: refreshHomeScreen,
-                                    note:notes[index])));
-                          });
-                        }),
-                      ).box.margin(EdgeInsets.symmetric(horizontal: 10)).make(),
+                              .color(Color(noteColors[colorIndex])).border(color: isSelected?Colors.lightBlueAccent:Colors.transparent,width: isSelected?3:0)
+                              .p16
+                              .make(),
+                        );
+                      }),
+                    )
+                        .box
+                        .margin(EdgeInsets.symmetric(horizontal: 10))
+                        .make(),
               ],
             ),
           )),
@@ -126,15 +201,16 @@ class _HomePageState extends State<HomePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          onPressed: () {
+          onPressed: isSelectedMode?deleteSelectedNodes:() {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => NoteScreen(
                       randColor: randColor,
                       refreshHomeScreen: refreshHomeScreen,
                     )));
           },
-          child: const Icon(
+          child: isSelectedMode? Icon(Icons.delete,size: 26, color: scaffoldBackgroundColor):const Icon(
             Icons.add,
+            size: 26,
             color: scaffoldBackgroundColor,
           ),
         ),

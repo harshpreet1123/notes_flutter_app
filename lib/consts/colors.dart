@@ -4,6 +4,7 @@ import 'dart:ui';
 const Color primaryColor = Color(0xffffeecf);
 const Color primaryColorlight = Color(0xfffff7e7);
 const Color scaffoldBackgroundColor = Color(0xff2b2730);
+const Color scaffoldBackgroundColorlight = Color(0xff3d3a42);
 List<int> noteColors = [
   0xffFCF7DE,
   0xffDEFDE0,

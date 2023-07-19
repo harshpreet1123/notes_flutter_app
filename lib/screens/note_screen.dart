@@ -7,7 +7,12 @@ import '../consts/colors.dart';
 import '../models/note.dart';
 
 class NoteScreen extends StatefulWidget {
-  const NoteScreen({Key? key, required this.randColor, required this.refreshHomeScreen, this.note}) : super(key: key);
+  const NoteScreen(
+      {Key? key,
+      required this.randColor,
+      required this.refreshHomeScreen,
+      this.note})
+      : super(key: key);
   final Color randColor;
   final VoidCallback refreshHomeScreen;
   final Note? note;
@@ -17,15 +22,14 @@ class NoteScreen extends StatefulWidget {
 }
 
 class _NoteScreenState extends State<NoteScreen> {
-
   @override
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(statusBarColor: widget.randColor));
-    if(widget.note!=null){
-      titleController.text=widget.note!.title;
-      descriptionController.text=widget.note!.description;
+    if (widget.note != null) {
+      titleController.text = widget.note!.title;
+      descriptionController.text = widget.note!.description;
     }
   }
 
@@ -41,10 +45,8 @@ class _NoteScreenState extends State<NoteScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final NotesDatabase db = NotesDatabase.instance;
 
     void updateTitle(String value) {
@@ -59,18 +61,15 @@ class _NoteScreenState extends State<NoteScreen> {
       });
     }
 
-    void saveNote() async{
-
+    void saveNote() async {
       final String updatedTitle = titleController.text;
       final String updatedDescription = descriptionController.text;
 
-      if(widget.note!=null){
-        final updatedNote = widget.note!.copy(
-          title: updatedTitle,
-          description: updatedDescription
-        );
+      if (widget.note != null) {
+        final updatedNote = widget.note!
+            .copy(title: updatedTitle, description: updatedDescription);
         await db.update(updatedNote);
-      }else{
+      } else {
         final Note newNote = Note(
           title: title!,
           description: description!,
@@ -84,15 +83,15 @@ class _NoteScreenState extends State<NoteScreen> {
       // widget.method;
     }
 
-    void showNotes() async{
-      final List<Note> notes = await db.readAll();
-      notes.forEach((note) {
-        print('id: ${note.id}');
-        print('Title: ${note.title}');
-        print('Description: ${note.description}');
-        print('Time: ${note.createdTime}');
-      });
-    }
+    // void showNotes() async {
+    //   final List<Note> notes = await db.readAll();
+    //   notes.forEach((note) {
+    //     print('id: ${note.id}');
+    //     print('Title: ${note.title}');
+    //     print('Description: ${note.description}');
+    //     print('Time: ${note.createdTime}');
+    //   });
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -100,28 +99,26 @@ class _NoteScreenState extends State<NoteScreen> {
         toolbarHeight: 40,
         backgroundColor: widget.randColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: scaffoldBackgroundColor),
+          icon: Icon(Icons.arrow_back, size: 26,color: scaffoldBackgroundColor),
           onPressed: () {
             Navigator.pop(context);
           },
-
         ),
         actions: [
-          ElevatedButton(
-            onPressed: (){saveNote();},
-            child: "Save".text.make(),
-            style: ElevatedButton.styleFrom(fixedSize: Size(100, 20)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              showNotes();
-            },
-            child: "Show".text.make(),
-          ),
+          IconButton(
+              onPressed: saveNote,
+              icon: Icon(Icons.save, size: 26, color: scaffoldBackgroundColor)),
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.delete,
+                size: 26,
+                color: scaffoldBackgroundColor,
+              )),
           IconButton(
             onPressed: () {},
             icon: Icon(
-              Icons.more_vert_sharp,
+              Icons.more_vert_sharp,size: 26,
               color: scaffoldBackgroundColor,
             ),
           ),
@@ -141,10 +138,7 @@ class _NoteScreenState extends State<NoteScreen> {
               controller: titleController,
               autofocus: true,
               maxLines: 1,
-            )
-                .box
-                .padding(EdgeInsets.symmetric(horizontal: 16))
-                .make(),
+            ).box.padding(EdgeInsets.symmetric(horizontal: 16)).make(),
             const Divider(
               color: primaryColorlight,
               indent: 16,
@@ -157,14 +151,11 @@ class _NoteScreenState extends State<NoteScreen> {
               hintFontWeight: FontWeight.w100,
               textFontWeight: FontWeight.w200,
               hintText: "Description",
-              color:primaryColorlight,
+              color: primaryColorlight,
               controller: descriptionController,
               autofocus: false,
               maxLines: 100,
-            )
-                .box
-                .padding(EdgeInsets.symmetric(horizontal: 16))
-                .make(),
+            ).box.padding(EdgeInsets.symmetric(horizontal: 16)).make(),
           ],
         ),
       ),
