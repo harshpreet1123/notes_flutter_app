@@ -3,6 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:notes/components/search_bar.dart';
 import 'package:notes/db/notes_database.dart';
 import 'package:notes/screens/note_screen.dart';
+import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'dart:math';
 import '../consts/colors.dart';
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
         return true;
       },
       child: Scaffold(
-        body: Container(
+        body: SizedBox(
           height: double.infinity,
           child: SafeArea(
               child: SingleChildScrollView(
